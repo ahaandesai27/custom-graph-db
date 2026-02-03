@@ -1,2 +1,2 @@
-pub mod graph_nodes;
-pub mod graph_edges;
+pub mod nodes;
+pub mod edges;

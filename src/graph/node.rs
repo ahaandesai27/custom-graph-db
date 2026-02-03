@@ -4,10 +4,12 @@ use serde_json::Value;
 use std::collections::HashMap;
 use uuid::Uuid;
 
+use crate::properties::types::property::PropertyMap;
+
 pub struct Node {
     pub id: Uuid,
     pub label: String,
-    pub property_map: HashMap<String, Value>,
+    pub property_map: PropertyMap,
 }
 
 impl Node {

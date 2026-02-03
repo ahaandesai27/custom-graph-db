@@ -1,15 +1,7 @@
 mod graph;
-mod propertymap;
+mod properties;
 
-use crate::graph::{graph::Graph};
-use std::collections::HashMap;
-
-fn try_serde() {
-    let json = r#"{"a":"1","b":"hello","c":"true"}"#;       // raw string lit in rust 
-    let map: HashMap<String, String> = serde_json::from_str(json).unwrap();
-    println!("{} {} {}", map["a"], map["b"], map["c"]);
-}
-
+use crate::{graph::graph::Graph, properties::{decode_json::decode_json_query, types::property_query::PropertyQueryMap}};
 fn main() {
     let mut graph: Graph = Graph::new();
     let node1_id = graph.add_node("ABC");
@@ -26,7 +18,7 @@ fn main() {
     }
 
     let node4_id = graph.add_node("TEST");
-    let Node4 = graph.get_node_mut(node4_id).unwrap();
+    let node4 = graph.get_node_mut(node4_id).unwrap();
     let json = r#"
 {
 "name": "NodeA",
@@ -35,6 +27,20 @@ fn main() {
 "active": true
 }
 "#;
-    Node4.add_properties_from_json(json);
-    println!("{}", Node4);
+    node4.add_properties_from_json(json);
+    println!("{}", node4);
+
+
+    let propertyQueryJson = r#"
+{
+  "age": {
+    "value": 20,
+    "cmp": ">"
+  }
+}
+"#;
+    let map: PropertyQueryMap = decode_json_query(propertyQueryJson);
+    
+    let result = node4.is_satisfying_property(&map);
+    println!("{}", result);
 }
