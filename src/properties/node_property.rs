@@ -4,6 +4,10 @@ use crate::properties::types::property::{PropertyMap, PropertyValue};
 use crate::properties::types::property_query::{Cmp, PropertyQueryMap, PropertyQueryValue};
 
 impl Node {
+    pub fn set_properties(&mut self, properties: PropertyMap) {
+        self.property_map = properties;
+    }
+    
     pub fn add_properties_from_json(&mut self, json: &str) {
         // Assuming added_properties is not needed after
 

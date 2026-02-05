@@ -1,8 +1,13 @@
+#![allow(unused)]
+
 mod graph;
 mod properties;
+mod interpreter;
 
 use crate::{graph::graph::Graph, properties::{decode_json::decode_json_query, types::property_query::PropertyQueryMap}};
-fn main() {
+use crate::interpreter::test::process_query;
+
+fn test_graph() {
     let mut graph: Graph = Graph::new();
     let node1_id = graph.add_node("ABC");
     let node2_id = graph.add_node("DEF");
@@ -31,7 +36,7 @@ fn main() {
     println!("{}", node4);
 
 
-    let propertyQueryJson = r#"
+    let property_query_json = r#"
 {
   "age": {
     "value": 20,
@@ -39,8 +44,14 @@ fn main() {
   }
 }
 "#;
-    let map: PropertyQueryMap = decode_json_query(propertyQueryJson);
+    let map: PropertyQueryMap = decode_json_query(property_query_json);
     
     let result = node4.is_satisfying_property(&map);
     println!("{}", result);
+}
+
+fn main() {
+    let input = r#"CREATE NODE Person (name:"Alice", age:25, female:true)"#;
+    let mut graph = Graph::new();
+    process_query(input, &mut graph);
 }

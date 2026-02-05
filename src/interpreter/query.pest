@@ -1,0 +1,22 @@
+WHITESPACE = _{ " " | "\t" | "\n" }
+
+statement = { create_stmt }
+
+create_stmt = { CREATE ~ NODE ~ ident ~ properties? }
+
+properties = { "(" ~ property ~ ("," ~ property)* ~ ")" }
+property   = { ident ~ ":" ~ value }
+
+value      = { string | number | boolean }
+
+ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+
+number = @{ "-"? ~ ASCII_DIGIT+ }
+string = @{ "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+
+boolean = { TRUE | FALSE }
+TRUE  = { "true" }
+FALSE = { "false" }
+
+CREATE = { "CREATE" }
+NODE   = { "NODE" }
