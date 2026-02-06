@@ -2,6 +2,7 @@ use core::fmt;
 
 use uuid::Uuid;
 use crate::graph::node::Node;
+pub mod crud;
 pub struct Edge {
     pub id: Uuid,
     pub src: Uuid,

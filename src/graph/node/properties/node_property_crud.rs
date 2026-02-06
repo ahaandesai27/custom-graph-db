@@ -1,7 +1,7 @@
 use crate::graph::node::Node;
-use crate::properties::decode_json::decode_json;
-use crate::properties::types::property::{PropertyMap, PropertyValue};
-use crate::properties::types::property_query::{Cmp, PropertyQueryMap, PropertyQueryValue};
+use crate::graph::node::properties::decode_json::{decode_json, decode_json_query};
+use crate::graph::node::properties::property_map::{PropertyMap, PropertyValue};
+use crate::graph::node::properties::property_query_map::{Cmp, PropertyQueryMap, PropertyQueryValue};
 
 impl Node {
     pub fn set_properties(&mut self, properties: PropertyMap) {

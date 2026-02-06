@@ -1,6 +1,7 @@
 use serde_json::Value;
 use std::collections::HashMap;
-use crate::properties::types::{property::{PropertyMap, PropertyValue}, property_query::{Cmp, PropertyQueryMap, PropertyQueryValue}};
+
+use crate::graph::node::properties::{property_map::{PropertyMap, PropertyValue}, property_query_map::{Cmp, PropertyQueryMap, PropertyQueryValue}};
 
 pub fn decode_json(json: &str) -> PropertyMap {
     let raw: HashMap<String, Value> =

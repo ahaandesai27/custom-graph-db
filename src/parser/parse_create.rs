@@ -5,8 +5,7 @@ use std::hash::Hash;
 use pest::iterators::Pair;
 use pest::Parser;
 use pest_derive::Parser;
-use crate::interpreter::main::Rule;
-use crate::properties::types::property::{PropertyMap, PropertyValue};
+use crate::{graph::node::properties::property_map::{PropertyMap, PropertyValue}, parser::query_parser::Rule};
 
 pub struct CreateNode {
     pub label: String,

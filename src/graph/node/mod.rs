@@ -4,7 +4,8 @@ use serde_json::Value;
 use std::collections::HashMap;
 use uuid::Uuid;
 
-use crate::properties::types::property::PropertyMap;
+use crate::graph::node::properties::property_map::PropertyMap;
+
 
 pub struct Node {
     pub id: Uuid,
@@ -32,3 +33,6 @@ impl fmt::Display for Node {
         // later , show properties too 
     }
 }
+
+pub mod crud;
+pub mod properties;

@@ -1,13 +1,12 @@
 use crate::graph::node::Node;
-use crate::interpreter::parse_create::parse_create;
-use pest::Parser;
-use pest::iterators::Pair;
-use pest_derive::Parser;
-use crate::graph::graph::Graph;
+use crate::parser::query_parser::{QueryParser, Rule};
+use crate::parser::parse_create::parse_create;
+use crate::graph::Graph;
 
-#[derive(Parser)]
-#[grammar = "src/interpreter/query.pest"]
-struct QueryParser;
+use pest::Parser;
+
+// pest::Parser is needed for QueryParser::parse
+
 
 pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::Error<Rule>> {
     let mut pairs = QueryParser::parse(Rule::statement, input)?;

@@ -1,7 +1,6 @@
 // CRUD on graph edges 
 
-use crate::graph::graph::Graph;
-use crate::graph::edge::Edge;
+use crate::graph::{Graph, edge::Edge};
 use uuid::Uuid;
 
 impl Graph {
