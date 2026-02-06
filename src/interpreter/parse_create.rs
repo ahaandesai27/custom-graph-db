@@ -5,7 +5,7 @@ use std::hash::Hash;
 use pest::iterators::Pair;
 use pest::Parser;
 use pest_derive::Parser;
-use crate::interpreter::test::Rule;
+use crate::interpreter::main::Rule;
 use crate::properties::types::property::{PropertyMap, PropertyValue};
 
 pub struct CreateNode {
@@ -34,15 +34,24 @@ fn parse_value(pair: Pair<Rule>) -> PropertyValue {
 
 pub fn parse_create(pair: Pair<Rule>) -> CreateNode {
     let mut inner = pair.into_inner();
-
     inner.next(); // CREATE
     inner.next(); // NODE
 
-    let label = inner.next().unwrap().as_str().to_string();     // getting the label 
+
+    let label_clause = inner.next().unwrap();   
+    let mut label_inner = label_clause.into_inner();
+    label_inner.next();         // LABEL 
+    let label = label_inner.next().unwrap().as_str().to_string(); // getting the label 
 
     let mut properties = HashMap::new();
 
-    if let Some(props) = inner.next() {
+    if let Some(mut props_clause) = inner.next() {
+        // props_clause contains a properties rule
+
+        let mut inner = props_clause.into_inner();
+        inner.next();
+        let props = inner.next().unwrap();
+
         for prop in props.into_inner() {
             let mut p = prop.into_inner();
             let key = p.next().unwrap().as_str().to_string();

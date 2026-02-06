@@ -28,7 +28,10 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
 
                     println!("Node created: {}", node);
                 }
-                _ => unreachable!(),
+                _ => {
+                    println!("This type of query does not exist!");
+                    unreachable!()
+                }
             }
         }
         _ => unreachable!(),

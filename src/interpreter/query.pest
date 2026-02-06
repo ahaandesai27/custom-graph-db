@@ -2,8 +2,11 @@ WHITESPACE = _{ " " | "\t" | "\n" }
 
 statement = { create_stmt }
 
-create_stmt = { CREATE ~ NODE ~ ident ~ properties? }
+create_stmt = { CREATE ~ NODE ~ label_clause ~ properties_clause? }
 
+label_clause = { LABEL ~ "="? ~ ident }
+
+properties_clause = { PROPERTIES ~ "="? ~ properties }
 properties = { "(" ~ property ~ ("," ~ property)* ~ ")" }
 property   = { ident ~ ":" ~ value }
 
@@ -18,5 +21,7 @@ boolean = { TRUE | FALSE }
 TRUE  = { "true" }
 FALSE = { "false" }
 
-CREATE = { "CREATE" }
-NODE   = { "NODE" }
+CREATE     = { "CREATE" }
+NODE       = { "NODE" }
+LABEL      = { "LABEL" }
+PROPERTIES = { "PROPERTIES" }

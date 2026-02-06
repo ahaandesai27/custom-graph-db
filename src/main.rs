@@ -5,7 +5,7 @@ mod properties;
 mod interpreter;
 
 use crate::{graph::graph::Graph, properties::{decode_json::decode_json_query, types::property_query::PropertyQueryMap}};
-use crate::interpreter::test::process_query;
+use crate::interpreter::main::process_query;
 
 fn test_graph() {
     let mut graph: Graph = Graph::new();
@@ -51,7 +51,7 @@ fn test_graph() {
 }
 
 fn main() {
-    let input = r#"CREATE NODE Person (name:"Alice", age:25, female:true)"#;
+    let input = r#"CREATE NODE LABEL=Person PROPERTIES=(name:"Alice", age:25, female:true)"#;
     let mut graph = Graph::new();
     process_query(input, &mut graph);
 }
