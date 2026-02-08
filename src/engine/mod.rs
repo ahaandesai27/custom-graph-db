@@ -1,6 +1,7 @@
 use crate::graph::node::Node;
 use crate::parser::query_parser::{QueryParser, Rule};
 use crate::parser::parse_create::parse_create;
+use crate::parser::parse_select::parse_select;
 use crate::graph::Graph;
 
 use pest::Parser;
@@ -11,7 +12,6 @@ use pest::Parser;
 pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::Error<Rule>> {
     let mut pairs = QueryParser::parse(Rule::statement, input)?;
     let stmt = pairs.next().unwrap();
-
     match stmt.as_rule() {
         Rule::statement => {
             let inner = stmt.into_inner().next().unwrap();      // goes into the actual statement
@@ -19,13 +19,22 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
             // matching first keyword, select, create etc
             match inner.as_rule() {
                 Rule::create_stmt => {
-                    let create_node = parse_create(inner);
-                    let node_id = graph.add_node(&create_node.label);
+                    let create_query = parse_create(inner);
+                    let node_id = graph.add_node(&create_query.label);
 
                     let node: &mut Node = graph.get_node_mut(node_id).unwrap();
-                    node.set_properties(create_node.properties);
+                    node.set_properties(create_query.properties);
 
                     println!("Node created: {}", node);
+                }
+                Rule::select_stmt => {
+                    let select_query =parse_select(inner);
+
+                    let mut nodes = graph.query_nodes_edges(select_query.node_edges);
+
+                    for node in &nodes {
+                        println!("id: {}, label: {}", node.id, node.label);
+                    }
                 }
                 _ => {
                     println!("This type of query does not exist!");

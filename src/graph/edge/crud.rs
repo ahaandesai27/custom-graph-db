@@ -14,6 +14,19 @@ impl Graph {
 
         edge_id
     }
+    
+    pub fn get_edge(&self, id: Uuid) -> Option<&Edge> {
+        self.edges.get(&id)
+    }
+
+    pub fn get_edges_by_label(&self, label: &str) -> Vec<&Edge> {
+        self.label_edge_index
+            .get(label)
+            .into_iter()
+            .flatten()
+            .filter_map(|id| self.get_edge(*id))
+            .collect::<Vec<_>>()
+    }
 
     fn update_label_index(&mut self, edge_id: Uuid, label: &str) {
         self.label_edge_index
@@ -34,9 +47,5 @@ impl Graph {
             .entry(dst)
             .or_insert_with(Vec::new)
             .push(edge_id);
-    }
-
-    pub fn get_edge(&self, id: Uuid) -> Option<&Edge> {
-        self.edges.get(&id)
     }
 }

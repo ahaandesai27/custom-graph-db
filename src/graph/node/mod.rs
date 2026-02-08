@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::graph::node::properties::property_map::PropertyMap;
 
-
+#[derive(Debug)]
 pub struct Node {
     pub id: Uuid,
     pub label: String,

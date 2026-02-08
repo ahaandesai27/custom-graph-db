@@ -1,14 +1,47 @@
 #![allow(unused)]
 
+mod engine;
 mod graph;
 mod parser;
-mod engine;
 
-use crate::{graph::Graph};
 use crate::engine::process_query;
+use crate::graph::Graph;
 
 fn main() {
-    let input = r#"CREATE NODE LABEL=Person PROPERTIES=(name:"Alice", age:25, female:true)"#;
-    let mut graph = Graph::new();
+    let mut graph: Graph = Graph::new();
+
+    let queries = vec![
+        r#"CREATE NODE LABEL=A"#,
+        r#"CREATE NODE LABEL=A"#,
+        r#"CREATE NODE LABEL=A"#,
+        r#"CREATE NODE LABEL=B"#,
+        r#"CREATE NODE LABEL=B"#,
+        r#"CREATE NODE LABEL=B"#,
+        r#"CREATE NODE LABEL=C"#,
+        r#"CREATE NODE LABEL=C"#,
+        r#"CREATE NODE LABEL=C"#,
+    ];
+
+    for q in queries {
+        process_query(q, &mut graph);
+    }
+
+    let ids_a: Vec<_> = graph.label_node_index["A"].iter().copied().collect();        // iter creates a borrow
+    let ids_b: Vec<_> = graph.label_node_index["B"].iter().copied().collect();
+    let ids_c: Vec<_> = graph.label_node_index["C"].iter().copied().collect();
+
+    for &node1 in &ids_a {
+        for &node2 in &ids_b {
+            graph.add_edge(node1, node2, "E");
+        }
+    }
+
+    for &node1 in &ids_b {
+        for &node2 in &ids_c {
+            graph.add_edge(node1, node2, "F");
+        }
+    }
+
+    let input = r#"SELECT a,b FROM a:A-E->b:B-F->c:C"#;
     process_query(input, &mut graph);
 }

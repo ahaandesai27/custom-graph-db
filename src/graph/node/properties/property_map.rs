@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
 #[derive(serde::Serialize)]
+#[derive(Debug)]
 #[serde(untagged)]                      // with this, even the type(Str, Int, Bool) is added in the serialisation
 pub enum PropertyValue {
     Bool(bool),

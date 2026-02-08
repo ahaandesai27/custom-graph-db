@@ -1,7 +1,8 @@
 WHITESPACE = _{ " " | "\t" | "\n" }
 
-statement = { create_stmt }
+statement = { create_stmt | select_stmt}
 
+// create statement
 create_stmt = { CREATE ~ NODE ~ label_clause ~ properties_clause? }
 
 label_clause = { LABEL ~ "="? ~ ident }
@@ -25,3 +26,14 @@ CREATE     = { "CREATE" }
 NODE       = { "NODE" }
 LABEL      = { "LABEL" }
 PROPERTIES = { "PROPERTIES" }
+
+// select statement
+// SELECT a,b,c,d FROM a:Node -Edge->b:Node -Edge->c:Node -Edge->d:Node;
+// SELECT (ident)(,ident)* FROM (ident:label)(-label->ident:label)
+select_stmt = { SELECT ~ variable_clause ~ FROM ~ relation_clause}
+variable_clause = {ident ~ ("," ~ ident)*} 
+relation_clause = {node_clause ~ ("-" ~ ident ~ "->" ~ node_clause)*}
+node_clause = {ident ~ ":" ~ ident}
+
+SELECT = { "SELECT" }
+FROM = { "FROM" }
