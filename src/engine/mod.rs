@@ -1,4 +1,5 @@
 use crate::graph::node::Node;
+use crate::graph::node::properties::property_query_map::PropertyQueryMap;
 use crate::parser::query_parser::{QueryParser, Rule};
 use crate::parser::parse_create::parse_create;
 use crate::parser::parse_select::parse_select;
@@ -28,12 +29,16 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
                     println!("Node created: {}", node);
                 }
                 Rule::select_stmt => {
-                    let select_query =parse_select(inner);
-
+                    let select_query = parse_select(inner);
+                    let property_query: PropertyQueryMap = select_query.property_query;
                     let mut nodes = graph.query_nodes_edges(select_query.node_edges);
+                    
+                    let result: Vec<&&Node> = nodes.iter()
+                        .filter(|node: &&&Node | node.is_satisfying_property(&property_query))
+                        .collect();
 
-                    for node in &nodes {
-                        println!("id: {}, label: {}", node.id, node.label);
+                    for node in &result {
+                        println!("{}", node);
                     }
                 }
                 _ => {

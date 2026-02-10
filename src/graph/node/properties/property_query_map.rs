@@ -1,5 +1,6 @@
 use std::collections::HashMap;
 
+#[derive(Clone, Copy)]
 pub enum Cmp {
     Eq, 
     Neq,

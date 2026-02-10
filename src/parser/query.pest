@@ -17,8 +17,8 @@ ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
 
 number = @{ "-"? ~ ASCII_DIGIT+ }
 string = @{ "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
-
 boolean = { TRUE | FALSE }
+
 TRUE  = { "true" }
 FALSE = { "false" }
 
@@ -28,12 +28,21 @@ LABEL      = { "LABEL" }
 PROPERTIES = { "PROPERTIES" }
 
 // select statement
-// SELECT a,b,c,d FROM a:Node -Edge->b:Node -Edge->c:Node -Edge->d:Node;
-// SELECT (ident)(,ident)* FROM (ident:label)(-label->ident:label)
-select_stmt = { SELECT ~ variable_clause ~ FROM ~ relation_clause}
+
+select_stmt = { SELECT ~ variable_clause ~ FROM ~ relation_clause ~ where_clause?}
+
 variable_clause = {ident ~ ("," ~ ident)*} 
+
 relation_clause = {node_clause ~ ("-" ~ ident ~ "->" ~ node_clause)*}
+
 node_clause = {ident ~ ":" ~ ident}
+
+where_clause     = { WHERE ~ "(" ~ comparison ~ ("," ~ comparison)* ~ ")" }
+
+comparison       = { ident ~ cmp_op ~ value }
+
+cmp_op           = { ">=" | "<=" | "!=" | "=" | ">" | "<" }
 
 SELECT = { "SELECT" }
 FROM = { "FROM" }
+WHERE = { "WHERE" }

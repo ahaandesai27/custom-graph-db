@@ -11,16 +11,20 @@ fn main() {
     let mut graph: Graph = Graph::new();
 
     let queries = vec![
-        r#"CREATE NODE LABEL=A"#,
-        r#"CREATE NODE LABEL=A"#,
-        r#"CREATE NODE LABEL=A"#,
-        r#"CREATE NODE LABEL=B"#,
-        r#"CREATE NODE LABEL=B"#,
-        r#"CREATE NODE LABEL=B"#,
-        r#"CREATE NODE LABEL=C"#,
-        r#"CREATE NODE LABEL=C"#,
-        r#"CREATE NODE LABEL=C"#,
+        r#"CREATE NODE LABEL=A PROPERTIES=(p1:2,  p2:"alpha",  p3:true)"#,
+        r#"CREATE NODE LABEL=A PROPERTIES=(p1:8,  p2:"beta",   p3:false)"#,
+        r#"CREATE NODE LABEL=A PROPERTIES=(p1:15, p2:"gamma",  p3:true)"#,
+
+        r#"CREATE NODE LABEL=B PROPERTIES=(p1:1,  p2:"delta",  p3:true)"#,
+        r#"CREATE NODE LABEL=B PROPERTIES=(p1:5,  p2:"echo",   p3:false)"#,
+        r#"CREATE NODE LABEL=B PROPERTIES=(p1:9,  p2:"foxtrot",p3:true)"#,
+
+        r#"CREATE NODE LABEL=C PROPERTIES=(p1:3,  p2:"hotel",  p3:false)"#,
+        r#"CREATE NODE LABEL=C PROPERTIES=(p1:7,  p2:"india",  p3:true)"#,
+        r#"CREATE NODE LABEL=C PROPERTIES=(p1:11, p2:"juliet", p3:true)"#,
     ];
+
+
 
     for q in queries {
         process_query(q, &mut graph);
@@ -42,6 +46,6 @@ fn main() {
         }
     }
 
-    let input = r#"SELECT a,b FROM a:A-E->b:B-F->c:C"#;
+    let input = r#"SELECT a,b FROM a:A-E->b:B-F->c:C WHERE (p1>=5, p3=true)"#;
     process_query(input, &mut graph);
 }

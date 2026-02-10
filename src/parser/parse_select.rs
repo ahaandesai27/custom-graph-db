@@ -7,13 +7,38 @@ use pest::Parser;
 use pest_derive::Parser;
 
 use crate::graph::node;
-use crate::graph::node::properties::property_query_map::PropertyQueryMap;
+use crate::graph::node::properties::property_query_map::{Cmp, PropertyQueryMap, PropertyQueryValue};
 use crate::parser::query_parser::Rule;
+
+fn parse_cmp(op: &str) -> Cmp {
+    match op {
+        "="  => Cmp::Eq,
+        "!=" => Cmp::Neq,
+        ">"  => Cmp::Gt,
+        ">=" => Cmp::Gte,
+        "<"  => Cmp::Lt,
+        "<=" => Cmp::Lte,
+        _ => unreachable!(),
+    }
+}
+
+fn parse_value(raw: &str, cmp: Cmp) -> PropertyQueryValue {
+    if raw == "true" || raw == "false" {
+        return PropertyQueryValue::Bool(raw == "true");
+    }
+
+    if let Ok(num) = raw.parse::<i32>() {
+        return PropertyQueryValue::IntOp(num, cmp);
+    }
+
+    PropertyQueryValue::Str(raw.to_string())
+}
 
 pub struct SelectQuery {
     pub variables: Vec<String>,
     pub node_labels: HashMap<String, String>,
     pub node_edges: Vec<String>,
+    pub property_query: PropertyQueryMap
 }
 
 pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
@@ -50,6 +75,25 @@ pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
         }
     }
 
+    let mut property_query: PropertyQueryMap = HashMap::new();
 
-    SelectQuery { variables, node_labels, node_edges }
+    if let Some(where_pair) = inner.next() {
+        for cmp_pair in where_pair.into_inner() {
+            if cmp_pair.as_rule() != Rule::comparison { continue; }
+
+            let mut cmp_inner = cmp_pair.into_inner();
+
+            let key = cmp_inner.next().unwrap().as_str().to_string();
+            let op_str = cmp_inner.next().unwrap().as_str();
+            let value_raw = cmp_inner.next().unwrap().as_str();
+
+            let cmp = parse_cmp(op_str);
+            let value = parse_value(value_raw, cmp.clone());
+
+            property_query.insert(key, value);
+        }
+    }
+
+
+    SelectQuery { variables, node_labels, node_edges, property_query }
 }
