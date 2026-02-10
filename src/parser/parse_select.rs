@@ -1,6 +1,6 @@
 
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use pest::iterators::Pair;
 use pest::Parser;
@@ -36,7 +36,7 @@ fn parse_value(raw: &str, cmp: Cmp) -> PropertyQueryValue {
 
 pub struct SelectQuery {
     pub variables: Vec<String>,
-    pub node_labels: HashMap<String, String>,
+    pub selected_labels: HashSet<String>,  
     pub node_edges: Vec<String>,
     pub property_query: PropertyQueryMap
 }
@@ -54,6 +54,7 @@ pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
     for v in variables_pair {
         variables.push(v.as_str().to_string());
     }
+
     // FROM
     inner.next();
 
@@ -75,6 +76,15 @@ pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
         }
     }
 
+    // Building selected labels
+    let mut selected_labels = HashSet::new();
+    for var in &variables {
+        if let Some(label) = node_labels.get(var) {
+            selected_labels.insert(label.clone());
+        }
+    }
+
+    // Properties 
     let mut property_query: PropertyQueryMap = HashMap::new();
 
     if let Some(where_pair) = inner.next() {
@@ -95,5 +105,5 @@ pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
     }
 
 
-    SelectQuery { variables, node_labels, node_edges, property_query }
+    SelectQuery { variables, selected_labels, node_edges, property_query }
 }

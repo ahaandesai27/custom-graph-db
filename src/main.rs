@@ -46,6 +46,7 @@ fn main() {
         }
     }
 
-    let input = r#"SELECT a,b FROM a:A-E->b:B-F->c:C WHERE (p1>=5, p3=true)"#;
+    let input = r#"SELECT a,b,c FROM a:A-E->b:B-F->c:C WHERE (p1>=5, p3=true)"#;
+    // later , can also add a.p1>=5 (so it looks only in a for p1>=5)
     process_query(input, &mut graph);
 }
