@@ -1,0 +1,62 @@
+statement = { create_stmt | select_stmt }
+
+
+CREATE     = { "CREATE" }
+NODE       = { "NODE" }
+LABEL      = { "LABEL" }
+PROPERTIES = { "PROPERTIES" }
+
+SELECT = { "SELECT" }
+FROM   = { "FROM" }
+WHERE  = { "WHERE" }
+
+
+select_stmt = {
+    SELECT ~ variable_clause ~ FROM ~ relation_clause ~ where_clause?
+}
+
+variable_clause = { ident ~ ("," ~ ident)* }
+
+relation_clause = {
+    node_clause ~ ("-" ~ ident ~ "->" ~ node_clause)*
+}
+
+node_clause = { ident ~ ":" ~ ident }
+
+where_clause = {
+    WHERE ~ "(" ~ comparison ~ ("," ~ comparison)* ~ ")"
+}
+
+comparison = { ident ~ cmp_op ~ value }
+
+cmp_op = { ">=" | "<=" | "!=" | "=" | ">" | "<" }
+
+
+create_stmt = { CREATE ~ NODE ~ label_clause ~ properties_clause? }
+
+label_clause = { LABEL ~ "="? ~ ident }
+
+properties_clause = { PROPERTIES ~ "="? ~ properties }
+
+properties = { "(" ~ property ~ ("," ~ property)* ~ ")" }
+property   = { ident ~ ":" ~ value }
+
+
+WHITESPACE = _{ " " | "\t" | "\n" }
+
+ASCII_ALPHA = _{ 'a'..'z' | 'A'..'Z' }
+ASCII_DIGIT = _{ '0'..'9' }
+ASCII_ALPHANUMERIC = _{ ASCII_ALPHA | ASCII_DIGIT }
+
+ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+
+number = @{ "-"? ~ ASCII_DIGIT+ }
+string = @{ "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+
+TRUE  = { "true" }
+FALSE = { "false" }
+boolean = { TRUE | FALSE }
+
+value = { string | number | boolean }
+
+

@@ -3,8 +3,8 @@ use std::collections::HashSet;
 use crate::graph::Graph;
 use crate::graph::node::Node;
 use crate::graph::node::properties::property_query_map::PropertyQueryMap;
-use crate::parser::parse_create::parse_create;
-use crate::parser::parse_select::{SelectQuery, parse_select};
+use crate::parser::create::parse::parse_create;
+use crate::parser::select::parse::{SelectQuery, parse_select};
 use crate::parser::query_parser::{QueryParser, Rule};
 
 use pest::Parser;
@@ -31,20 +31,20 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
                 }
                 Rule::select_stmt => {
                     let SelectQuery {
+                        variables,
                         selected_labels,
-                        node_edges,
+                        pattern,
                         property_query,
-                        ..
                     } = parse_select(inner);
 
-                    let nodes = graph.query_nodes_edges(node_edges);
+                    let nodes = graph.execute_pattern_chain(pattern);
 
                     let result: Vec<&Node> = nodes
                         .iter()
                         .copied()
                         .filter(|node| {
                             selected_labels.contains(&node.label)
-                                && node.is_satisfying_property(&property_query)
+                            && node.is_satisfying_property(&property_query)
                         })
                         .collect();
 

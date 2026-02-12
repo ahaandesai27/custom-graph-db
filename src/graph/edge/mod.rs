@@ -1,17 +1,18 @@
 use core::fmt;
 
 use uuid::Uuid;
-use crate::graph::node::Node;
-pub mod crud;
+use crate::graph::node::{Node, NodeId};
+
+pub type EdgeId = Uuid;
 pub struct Edge {
-    pub id: Uuid,
-    pub src: Uuid,
-    pub dst: Uuid, 
+    pub id: EdgeId,
+    pub src: NodeId,
+    pub dst: NodeId,
     pub label: String,
 }
 
 impl Edge {
-    pub fn new(src: Uuid, dst: Uuid, label: String) -> Self {
+    pub fn new(src: NodeId, dst: NodeId, label: String) -> Self {
         Self { id: Uuid::now_v7(), src, dst, label }
     }
 
@@ -33,3 +34,5 @@ impl fmt::Display for Edge {
         write!(f, "Node(label={})", self.label)
     }
 }
+
+pub mod crud;

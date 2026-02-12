@@ -1,0 +1,16 @@
+WHITESPACE = _{ " " | "\t" | "\n" }
+
+ASCII_ALPHA = _{ 'a'..'z' | 'A'..'Z' }
+ASCII_DIGIT = _{ '0'..'9' }
+ASCII_ALPHANUMERIC = _{ ASCII_ALPHA | ASCII_DIGIT }
+
+ident = @{ (ASCII_ALPHA | "_") ~ (ASCII_ALPHANUMERIC | "_")* }
+
+number = @{ "-"? ~ ASCII_DIGIT+ }
+string = @{ "\"" ~ (!"\"" ~ ANY)* ~ "\"" }
+
+TRUE  = { "true" }
+FALSE = { "false" }
+boolean = { TRUE | FALSE }
+
+value = { string | number | boolean }

@@ -1,10 +1,9 @@
 // CRUD on graph edges 
 
-use crate::graph::{Graph, edge::Edge};
-use uuid::Uuid;
+use crate::graph::{Graph, edge::{Edge, EdgeId}, node::NodeId};
 
 impl Graph {
-    pub fn add_edge(&mut self, src: Uuid, dst: Uuid, label: &str) -> Uuid {
+    pub fn add_edge(&mut self, src: NodeId, dst: NodeId, label: &str) -> EdgeId {
         let edge = Edge::new(src, dst, label.to_string());
         let edge_id = edge.id;
         self.edges.insert(edge_id, edge);
@@ -15,7 +14,7 @@ impl Graph {
         edge_id
     }
     
-    pub fn get_edge(&self, id: Uuid) -> Option<&Edge> {
+    pub fn get_edge(&self, id: EdgeId) -> Option<&Edge> {
         self.edges.get(&id)
     }
 
@@ -28,21 +27,21 @@ impl Graph {
             .collect::<Vec<_>>()
     }
 
-    fn update_label_index(&mut self, edge_id: Uuid, label: &str) {
+    fn update_label_index(&mut self, edge_id: EdgeId, label: &str) {
         self.label_edge_index
             .entry(label.to_string())
             .or_insert_with(Vec::new)
             .push(edge_id);
     }
 
-    fn update_out_index(&mut self, edge_id: Uuid, src: Uuid) {
+    fn update_out_index(&mut self, edge_id: EdgeId, src: NodeId) {
         self.out_index
             .entry(src)
             .or_insert_with(Vec::new)
             .push(edge_id);
     }
 
-    fn update_in_index(&mut self, edge_id: Uuid, dst: Uuid) {
+    fn update_in_index(&mut self, edge_id: EdgeId, dst: NodeId) {
         self.in_index
             .entry(dst)
             .or_insert_with(Vec::new)

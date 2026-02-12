@@ -1,0 +1,19 @@
+select_stmt = {
+    SELECT ~ variable_clause ~ FROM ~ relation_clause ~ where_clause?
+}
+
+variable_clause = { ident ~ ("," ~ ident)* }
+
+relation_clause = {
+    node_clause ~ ("-" ~ ident ~ "->" ~ node_clause)*
+}
+
+node_clause = { ident ~ ":" ~ ident }
+
+where_clause = {
+    WHERE ~ "(" ~ comparison ~ ("," ~ comparison)* ~ ")"
+}
+
+comparison = { ident ~ cmp_op ~ value }
+
+cmp_op = { ">=" | "<=" | "!=" | "=" | ">" | "<" }

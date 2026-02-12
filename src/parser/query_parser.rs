@@ -3,5 +3,5 @@ use pest::iterators::Pair;
 use pest_derive::Parser;
 
 #[derive(Parser)]
-#[grammar = "parser/query.pest"]
+#[grammar = "parser/grammar.pest"]
 pub struct QueryParser;

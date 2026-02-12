@@ -1,0 +1,8 @@
+create_stmt = { CREATE ~ NODE ~ label_clause ~ properties_clause? }
+
+label_clause = { LABEL ~ "="? ~ ident }
+
+properties_clause = { PROPERTIES ~ "="? ~ properties }
+
+properties = { "(" ~ property ~ ("," ~ property)* ~ ")" }
+property   = { ident ~ ":" ~ value }

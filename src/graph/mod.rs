@@ -1,10 +1,5 @@
 use std::collections::HashMap;
-use uuid::Uuid;
-
-use crate::graph::{edge::Edge, node::Node};
-
-pub type NodeId = Uuid;
-pub type EdgeId = Uuid;
+use crate::graph::{edge::{Edge, EdgeId}, node::{Node, NodeId}};
 
 pub struct Graph {
     pub nodes: HashMap<NodeId, Node>,                 // index by id 
@@ -34,6 +29,9 @@ impl Graph {
 
 pub mod edge;
 pub mod node;
+pub mod traverse;
+
+
 
 
 
