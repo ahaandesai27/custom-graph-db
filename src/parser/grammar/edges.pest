@@ -1,0 +1,9 @@
+add_edge_stmt = { ADD ~ EDGE ~ ident ~ FROM ~ node_prop_clause ~ TO ~ node_prop_clause }
+
+node_prop_clause = { "(" ~ ident ~ property_clause? ~ ")" }
+
+property_clause = { PROPERTIES ~ "=" ~ map }
+
+map = { "(" ~ comparison ~ ("," ~ comparison)* ~ ")" }
+
+

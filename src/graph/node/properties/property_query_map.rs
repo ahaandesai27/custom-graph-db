@@ -1,6 +1,6 @@
 use std::collections::HashMap;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, Debug)]
 pub enum Cmp {
     Eq, 
     Neq,
@@ -9,7 +9,7 @@ pub enum Cmp {
     Lt,
     Lte,
 }
-
+#[derive(Debug)]
 pub enum PropertyQueryValue {
     Str(String),                // equality only
     Bool(bool),                 // equality only

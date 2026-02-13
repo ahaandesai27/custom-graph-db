@@ -2,7 +2,9 @@ CREATE     = { "CREATE" }
 NODE       = { "NODE" }
 LABEL      = { "LABEL" }
 PROPERTIES = { "PROPERTIES" }
-
 SELECT = { "SELECT" }
 FROM   = { "FROM" }
 WHERE  = { "WHERE" }
+ADD = { "ADD" }
+EDGE = { "EDGE" }
+TO = { "TO" }

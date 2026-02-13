@@ -1,15 +1,16 @@
-statement = { create_stmt | select_stmt }
+statement = { create_stmt | select_stmt | add_edge_stmt }
 
 
 CREATE     = { "CREATE" }
 NODE       = { "NODE" }
 LABEL      = { "LABEL" }
 PROPERTIES = { "PROPERTIES" }
-
 SELECT = { "SELECT" }
 FROM   = { "FROM" }
 WHERE  = { "WHERE" }
-
+ADD = { "ADD" }
+EDGE = { "EDGE" }
+TO = { "TO" }
 
 select_stmt = {
     SELECT ~ variable_clause ~ FROM ~ relation_clause ~ where_clause?
@@ -18,10 +19,10 @@ select_stmt = {
 variable_clause = { ident ~ ("," ~ ident)* }
 
 relation_clause = {
-    node_clause ~ ("-" ~ ident ~ "->" ~ node_clause)*
+    node_var_clause ~ ("-" ~ ident ~ "->" ~ node_var_clause)*
 }
 
-node_clause = { ident ~ ":" ~ ident }
+node_var_clause = { ident ~ ":" ~ ident }
 
 where_clause = {
     WHERE ~ "(" ~ comparison ~ ("," ~ comparison)* ~ ")"
@@ -40,6 +41,17 @@ properties_clause = { PROPERTIES ~ "="? ~ properties }
 
 properties = { "(" ~ property ~ ("," ~ property)* ~ ")" }
 property   = { ident ~ ":" ~ value }
+
+
+add_edge_stmt = { ADD ~ EDGE ~ ident ~ FROM ~ node_prop_clause ~ TO ~ node_prop_clause }
+
+node_prop_clause = { "(" ~ ident ~ property_clause? ~ ")" }
+
+property_clause = { PROPERTIES ~ "=" ~ map }
+
+map = { "(" ~ comparison ~ ("," ~ comparison)* ~ ")" }
+
+
 
 
 WHITESPACE = _{ " " | "\t" | "\n" }

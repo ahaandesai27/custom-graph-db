@@ -3,6 +3,7 @@ use std::collections::HashSet;
 use crate::graph::Graph;
 use crate::graph::node::Node;
 use crate::graph::node::properties::property_query_map::PropertyQueryMap;
+use crate::parser::add_edge::parse::{AddEdgeStmt, parse_add_edge};
 use crate::parser::create::parse::parse_create;
 use crate::parser::select::parse::{SelectQuery, parse_select};
 use crate::parser::query_parser::{QueryParser, Rule};
@@ -51,6 +52,40 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
                     for node in result {
                         println!("{}", node);
                     }
+                }
+                Rule::add_edge_stmt => {
+                    let AddEdgeStmt {
+                        label, 
+                        from,
+                        to
+                    } = parse_add_edge(inner);
+
+                    let source_ids: Vec<_> = {
+                        let nodes = graph
+                            .find_nodes_satisfying_label_and_property(&from.label, &from.filters);
+                        nodes.into_iter().map(|n| n.id).collect()
+                    };
+
+                    let source_count = source_ids.len();
+
+                    let dest_ids: Vec<_> = {
+                        let nodes = graph
+                            .find_nodes_satisfying_label_and_property(&to.label, &to.filters);
+                        nodes.into_iter().map(|n| n.id).collect()
+                    };
+
+                    let dest_count = dest_ids.len();
+
+                    for src in &source_ids {
+                        for dst in &dest_ids {
+                            graph.add_edge(*src, *dst, &label);
+                        }
+                    }
+                    
+                    println!(
+                        "Added {} '{}' edges ({} sources × {} destinations)",
+                        source_count*dest_count, label, source_count, dest_count
+                    );
                 }
                 _ => {
                     println!("This type of query does not exist!");

@@ -5,10 +5,10 @@ select_stmt = {
 variable_clause = { ident ~ ("," ~ ident)* }
 
 relation_clause = {
-    node_clause ~ ("-" ~ ident ~ "->" ~ node_clause)*
+    node_var_clause ~ ("-" ~ ident ~ "->" ~ node_var_clause)*
 }
 
-node_clause = { ident ~ ":" ~ ident }
+node_var_clause = { ident ~ ":" ~ ident }
 
 where_clause = {
     WHERE ~ "(" ~ comparison ~ ("," ~ comparison)* ~ ")"
