@@ -6,7 +6,7 @@ use uuid::Uuid;
 
 use crate::graph::node::properties::property_map::PropertyMap;
 
-pub type NodeId = Uuid;
+pub type NodeId = u64;
 
 #[derive(Debug)]
 pub struct Node {
@@ -17,10 +17,10 @@ pub struct Node {
 
 
 impl Node {
-    pub fn new(label: String) -> Self {
+    pub fn new(id: u64, label: String) -> Self {
         Self {
-            id: Uuid::now_v7(),
-            label: label,
+            id,
+            label,
             property_map: HashMap::new(),
         }
     }

@@ -4,7 +4,7 @@ use crate::graph::{Graph, edge::{Edge, EdgeId}, node::NodeId};
 
 impl Graph {
     pub fn add_edge(&mut self, src: NodeId, dst: NodeId, label: &str) -> EdgeId {
-        let edge = Edge::new(src, dst, label.to_string());
+        let edge = Edge::new(self.edge_idgen.next_id(), src, dst, label.to_string());
         let edge_id = edge.id;
         self.edges.insert(edge_id, edge);
         self.update_label_index(edge_id, label);

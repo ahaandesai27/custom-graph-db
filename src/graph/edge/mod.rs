@@ -3,7 +3,7 @@ use core::fmt;
 use uuid::Uuid;
 use crate::graph::node::{Node, NodeId};
 
-pub type EdgeId = Uuid;
+pub type EdgeId = u64;
 pub struct Edge {
     pub id: EdgeId,
     pub src: NodeId,
@@ -12,16 +12,16 @@ pub struct Edge {
 }
 
 impl Edge {
-    pub fn new(src: NodeId, dst: NodeId, label: String) -> Self {
-        Self { id: Uuid::now_v7(), src, dst, label }
+    pub fn new(id: u64, src: NodeId, dst: NodeId, label: String) -> Self {
+        Self { id, src, dst, label }
     }
 
-    pub fn from_nodes(src: &Node, dst: &Node, label: String) -> Self {
+    pub fn from_nodes(id: u64, src: &Node, dst: &Node, label: String) -> Self {
         // Reference & is needed
         // Otherwise the acutal object is passed to the function and the function owns the object
         // The objects would be destroyed after the function ends due to the borrow checker
         Self {
-            id: Uuid::now_v7(),
+            id,
             src: src.id,
             dst: dst.id,
             label,

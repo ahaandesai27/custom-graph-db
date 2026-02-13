@@ -12,7 +12,7 @@ impl Graph {
         // &mut self borrows the graph mutably and modifies it in place - thereby keeping ownership
         // &str is used so the function can accept any string input without forcing ownership or extra allocations
 
-        let node = Node::new(label.to_string());
+        let node = Node::new(self.node_idgen.next_id(), label.to_string());
         let id = node.id;
         let label = node.label.clone();
 
