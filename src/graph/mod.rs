@@ -1,15 +1,17 @@
-use std::collections::HashMap;
-use crate::graph::{edge::{Edge, EdgeId}, idgen::IdGenerator, node::{Node, NodeId}};
+use std::collections::{HashMap, HashSet};
+use dashmap::DashMap;
+
+use crate::{graph::{edge::{Edge, EdgeId}, idgen::IdGenerator, node::{Node, NodeId}}, utils::shared::Shared};
 
 pub struct Graph {
-    pub nodes: HashMap<NodeId, Node>,                 // index by id 
-    pub edges: HashMap<EdgeId, Edge>,
+    pub nodes: DashMap<NodeId, Shared<Node>>,                 // index by id 
+    pub edges: DashMap<EdgeId, Shared<Edge>>,
 
-    // Label storage 
-    pub label_node_index: HashMap<String, Vec<NodeId>>,
-    pub label_edge_index: HashMap<String, Vec<EdgeId>>,
+    // Label storage - These are only meant for getting nodes 
+    pub label_node_index: HashMap<String, HashSet<NodeId>>,
+    pub label_edge_index: HashMap<String, HashSet<EdgeId>>,
 
-    // ID generator
+    // ID generator - uses Atomic64
     pub node_idgen: IdGenerator,
     pub edge_idgen: IdGenerator,
 }
@@ -17,8 +19,8 @@ pub struct Graph {
 impl Graph {
     pub fn new() -> Self {
         Self {
-            nodes: HashMap::new(),
-            edges: HashMap::new(),
+            nodes: DashMap::new(),
+            edges: DashMap::new(),
             label_node_index: HashMap::new(),
             label_edge_index: HashMap::new(),
             node_idgen: IdGenerator::new(1),

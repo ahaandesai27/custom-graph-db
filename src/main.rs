@@ -1,6 +1,7 @@
 mod engine;
 mod graph;
 mod parser;
+mod utils;
 
 use crate::engine::process_query;
 use crate::graph::Graph;

@@ -1,7 +1,7 @@
 use std::collections::HashSet;
 
 use crate::{
-    graph::{Graph, node::{Node, NodeId}}, parser::select::parse::PatternElement,
+    graph::{Graph, node::{Node, NodeId}}, parser::select::parse::PatternElement, utils::shared::Shared,
 };
 
 impl Graph {
@@ -27,7 +27,8 @@ impl Graph {
 
             if depth >= min_hops && depth > 0 {
                 if let Some(node) = self.get_node(current_id) {
-                    if node.label == target_label {
+                    let guard = node.read().unwrap();
+                    if guard.label == target_label {
                         results.push(current_id);
                     }
                 }
@@ -45,8 +46,9 @@ impl Graph {
             let edges = self.get_edges_by_label(edge_type);
 
             for edge in edges {
-                if edge.src == current_id {
-                    frontier.push((edge.dst, depth + 1));
+                let guard = edge.read().unwrap();
+                if guard.src == current_id {
+                    frontier.push((guard.dst, depth + 1));
                 }
             }
         }
@@ -57,7 +59,7 @@ impl Graph {
     pub fn execute_pattern_chain(
         &self,
         pattern:Vec<PatternElement>,
-    ) -> Vec<&Node> {
+    ) -> Vec<Shared<Node>> {
 
         if pattern.is_empty() {
             return Vec::new();
@@ -71,11 +73,11 @@ impl Graph {
             _ => panic!("Pattern must start with Node"),
         };
 
-        let mut current_nodes: Vec<&Node> =
-            self.get_nodes_by_label(first_label);
+        let mut current_nodes: HashSet<NodeId> =
+            self.get_node_ids_by_label(first_label).unwrap().clone();
 
         let mut all_nodes: HashSet<NodeId> =
-            current_nodes.iter().map(|n| n.id).collect();
+            current_nodes.iter().map(|id| id.clone()).collect();
 
         let mut i = 1;
 
@@ -98,12 +100,13 @@ impl Graph {
                 _ => panic!("Expected Node at position {}", i + 1),
             };
 
-            let mut next_nodes: Vec<&Node> = Vec::new();
+            let mut next_nodes: HashSet<NodeId> = HashSet::new(); 
 
             // runs BFS depending on edge query 
-            for node in &current_nodes {
+            for start_id in current_nodes {
+
                 let reachable_ids = self.traverse(
-                    node.id,
+                    start_id,
                     edge_pattern.0,
                     *edge_pattern.1,
                     *edge_pattern.2,
@@ -111,9 +114,8 @@ impl Graph {
                 );
 
                 for id in reachable_ids {
-                    if let Some(n) = self.get_node(id) {
-                        next_nodes.push(n);
-                        all_nodes.insert(n.id);
+                    if next_nodes.insert(id) {
+                        all_nodes.insert(id);
                     }
                 }
             }
