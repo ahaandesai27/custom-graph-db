@@ -1,5 +1,3 @@
-#![allow(unused)]
-
 mod engine;
 mod graph;
 mod parser;

@@ -2,17 +2,16 @@
 
 use crate::graph::{
     Graph,
-    node::{Node, properties::property_query_map::PropertyQueryMap, NodeId},
+    node::{Node, NodeId, properties::{property_map::PropertyMap, property_query_map::PropertyQueryMap}},
 };
-use std::collections::HashSet;
 
 
 impl Graph {
-    pub fn add_node(&mut self, label: &str) -> NodeId {
+    pub fn add_node(&mut self, label: &str, properties: &PropertyMap) -> NodeId {
         // &mut self borrows the graph mutably and modifies it in place - thereby keeping ownership
         // &str is used so the function can accept any string input without forcing ownership or extra allocations
 
-        let node = Node::new(self.node_idgen.next_id(), label.to_string());
+        let node = Node::new(self.node_idgen.next_id(), label.to_string(), properties.clone());
         let id = node.id;
         let label = node.label.clone();
 
@@ -50,26 +49,6 @@ impl Graph {
             .flatten()
             .filter_map(|id| self.get_node(*id))
             .collect::<Vec<_>>()
-    }
-
-    pub fn out_neighbours(&self, node_id: NodeId) -> Vec<&Node> {
-        self.out_index
-            .get(&node_id)
-            .into_iter()
-            .flatten()
-            .filter_map(|eid| self.edges.get(eid))
-            .filter_map(|edge| self.nodes.get(&edge.dst))
-            .collect()
-    }
-
-    pub fn in_neighbours(&self, node_id: NodeId) -> Vec<&Node> {
-        self.in_index
-            .get(&node_id)
-            .into_iter()
-            .flatten()
-            .filter_map(|eid| self.edges.get(eid))
-            .filter_map(|edge| self.nodes.get(&edge.src))
-            .collect()
     }
 
     pub fn find_nodes_satisfying_label_and_property(

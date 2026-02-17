@@ -1,14 +1,10 @@
 use core::fmt;
 
-use serde_json::Value;
-use std::collections::HashMap;
-use uuid::Uuid;
-
 use crate::graph::node::properties::property_map::PropertyMap;
 
 pub type NodeId = u64;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Node {
     pub id: NodeId,
     pub label: String,
@@ -17,11 +13,11 @@ pub struct Node {
 
 
 impl Node {
-    pub fn new(id: u64, label: String) -> Self {
+    pub fn new(id: u64, label: String, properties: PropertyMap) -> Self {
         Self {
             id,
             label,
-            property_map: HashMap::new(),
+            property_map: properties
         }
     }
 }

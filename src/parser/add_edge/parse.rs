@@ -1,5 +1,4 @@
 use pest::iterators::Pair;
-use std::collections::HashMap;
 use crate::{graph::node::properties::property_query_map::{Cmp, PropertyQueryMap, PropertyQueryValue}, parser::query_parser::Rule};
 
 
@@ -36,7 +35,7 @@ fn parse_node_clause(pair: Pair<Rule>) -> NodeClause {
     let mut inner = pair.into_inner();
     let label = inner.next().unwrap().as_str().to_string();
 
-    let mut filter_rules = inner.next().unwrap();
+    let filter_rules = inner.next().unwrap();
     let filters = parse_property_clause(filter_rules);    
     NodeClause { label, filters }
 }

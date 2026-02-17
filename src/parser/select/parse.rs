@@ -1,10 +1,5 @@
 use std::collections::{HashMap, HashSet};
-
-use pest::Parser;
 use pest::iterators::Pair;
-use pest_derive::Parser;
-
-use crate::graph::node;
 use crate::graph::node::properties::property_query_map::{
     Cmp, PropertyQueryMap, PropertyQueryValue,
 };
@@ -34,12 +29,6 @@ fn parse_value(raw: &str, cmp: Cmp) -> PropertyQueryValue {
     PropertyQueryValue::Str(raw.to_string())
 }
 
-pub struct EdgePattern {
-    pub edge_type: String,
-    pub min_hops: usize,
-    pub max_hops: Option<usize>, // None = unbounded
-}
-
 pub enum PatternElement {
     Node {
         variable: String,
@@ -53,7 +42,6 @@ pub enum PatternElement {
 }
 
 pub struct SelectQuery {
-    pub variables: Vec<String>,
     pub selected_labels: HashSet<String>,
     pub pattern: Vec<PatternElement>,
     pub property_query: PropertyQueryMap,
@@ -166,5 +154,5 @@ pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
         }
     }
 
-    SelectQuery { variables, selected_labels, pattern, property_query }
+    SelectQuery { selected_labels, pattern, property_query }
 }

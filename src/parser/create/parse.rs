@@ -1,10 +1,6 @@
 
 use std::collections::HashMap;
-use std::hash::Hash;
-
 use pest::iterators::Pair;
-use pest::Parser;
-use pest_derive::Parser;
 use crate::{graph::node::properties::property_map::{PropertyMap, PropertyValue}, parser::query_parser::Rule};
 
 pub struct CreateNode {
@@ -44,7 +40,7 @@ pub fn parse_create(pair: Pair<Rule>) -> CreateNode {
 
     let mut properties = HashMap::new();
 
-    if let Some(mut props_clause) = inner.next() {
+    if let Some(props_clause) = inner.next() {
         // props_clause contains a properties rule
 
         let mut inner = props_clause.into_inner();

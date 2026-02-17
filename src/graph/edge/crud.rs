@@ -8,9 +8,6 @@ impl Graph {
         let edge_id = edge.id;
         self.edges.insert(edge_id, edge);
         self.update_label_index(edge_id, label);
-        self.update_out_index(edge_id, src);
-        self.update_in_index(edge_id, dst);
-
         edge_id
     }
     
@@ -34,17 +31,4 @@ impl Graph {
             .push(edge_id);
     }
 
-    fn update_out_index(&mut self, edge_id: EdgeId, src: NodeId) {
-        self.out_index
-            .entry(src)
-            .or_insert_with(Vec::new)
-            .push(edge_id);
-    }
-
-    fn update_in_index(&mut self, edge_id: EdgeId, dst: NodeId) {
-        self.in_index
-            .entry(dst)
-            .or_insert_with(Vec::new)
-            .push(edge_id);
-    }
 }

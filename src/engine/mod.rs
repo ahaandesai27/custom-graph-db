@@ -1,8 +1,5 @@
-use std::collections::HashSet;
-
 use crate::graph::Graph;
 use crate::graph::node::Node;
-use crate::graph::node::properties::property_query_map::PropertyQueryMap;
 use crate::parser::add_edge::parse::{AddEdgeStmt, parse_add_edge};
 use crate::parser::create::parse::parse_create;
 use crate::parser::select::parse::{SelectQuery, parse_select};
@@ -23,16 +20,12 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
             match inner.as_rule() {
                 Rule::create_stmt => {
                     let create_query = parse_create(inner);
-                    let node_id = graph.add_node(&create_query.label);
-
-                    let node: &mut Node = graph.get_node_mut(node_id).unwrap();
-                    node.set_properties(create_query.properties);
-
+                    let node_id = graph.add_node(&create_query.label, &create_query.properties);
+                    let node: &Node = graph.get_node(node_id).unwrap();
                     println!("Node created: {}", node);
                 }
                 Rule::select_stmt => {
                     let SelectQuery {
-                        variables,
                         selected_labels,
                         pattern,
                         property_query,
