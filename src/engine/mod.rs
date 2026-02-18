@@ -4,6 +4,7 @@ use crate::parser::add_edge::parse::{AddEdgeStmt, parse_add_edge};
 use crate::parser::create::parse::parse_create;
 use crate::parser::select::parse::{SelectQuery, parse_select};
 use crate::parser::query_parser::{QueryParser, Rule};
+use crate::utils::shared::Shared;
 
 use pest::Parser;
 
@@ -21,8 +22,11 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
                 Rule::create_stmt => {
                     let create_query = parse_create(inner);
                     let node_id = graph.add_node(&create_query.label, &create_query.properties);
-                    let node: &Node = graph.get_node(node_id).unwrap();
-                    println!("Node created: {}", node);
+                    let node_arc = graph.get_node(node_id).unwrap();
+                    let guard = node_arc.read().unwrap();
+                    // IMP: if i chain node_arc.guard call, the node_arc will be dropped and the guard will point to nothing
+                    // Hence I must declare it separately 
+                    println!("Node created: {}", guard);
                 }
                 Rule::select_stmt => {
                     let SelectQuery {
@@ -32,18 +36,19 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
                     } = parse_select(inner);
 
                     let nodes = graph.execute_pattern_chain(pattern);
-
-                    let result: Vec<&Node> = nodes
+                    let result: Vec<Shared<Node>> = nodes
                         .iter()
-                        .copied()
+                        .cloned()
                         .filter(|node| {
-                            selected_labels.contains(&node.label)
-                            && node.is_satisfying_property(&property_query)
+                            let guard = node.read().unwrap();
+                            selected_labels.contains(&guard.label)
+                                && guard.is_satisfying_property(&property_query)
                         })
                         .collect();
 
                     for node in result {
-                        println!("{}", node);
+                        let guard = node.read().unwrap();
+                        println!("{}", guard);
                     }
                 }
                 Rule::add_edge_stmt => {
@@ -55,16 +60,16 @@ pub fn process_query(input: &str, graph: &mut Graph) -> Result<(), pest::error::
 
                     let source_ids: Vec<_> = {
                         let nodes = graph
-                            .find_nodes_satisfying_label_and_property(&from.label, &from.filters);
-                        nodes.into_iter().map(|n| n.id).collect()
+                            .get_nodes_satisfying_label_and_property(Some(&from.label), &from.filters);
+                        nodes.into_iter().map(|n| {let guard = n.read().unwrap(); guard.id}).collect()
                     };
 
                     let source_count = source_ids.len();
 
                     let dest_ids: Vec<_> = {
                         let nodes = graph
-                            .find_nodes_satisfying_label_and_property(&to.label, &to.filters);
-                        nodes.into_iter().map(|n| n.id).collect()
+                            .get_nodes_satisfying_label_and_property(Some(&to.label), &to.filters);
+                        nodes.into_iter().map(|n| {let guard = n.read().unwrap(); guard.id}).collect()
                     };
 
                     let dest_count = dest_ids.len();
