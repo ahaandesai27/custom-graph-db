@@ -46,9 +46,8 @@ impl Graph {
             let edges = self.get_edges_by_label(edge_type);
 
             for edge in edges {
-                let guard = edge.read().unwrap();
-                if guard.src == current_id {
-                    frontier.push((guard.dst, depth + 1));
+                if edge.src == current_id {
+                    frontier.push((edge.dst, depth + 1));
                 }
             }
         }

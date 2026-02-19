@@ -1,39 +1,33 @@
 // CRUD on graph edges 
 
-use std::collections::HashSet;
+use std::{clone, collections::HashSet, sync::Arc};
 
 use dashmap::DashSet;
 
 use crate::{graph::{Graph, edge::{Edge, EdgeId}, node::NodeId}, utils::shared::{shared,Shared}};
 
 impl Graph {
-    pub fn add_edge(&self, src: NodeId, dst: NodeId, label: &str) -> EdgeId {
-        let edge_id = self.edge_idgen.next_id();
-        let edge = shared(Edge::new(edge_id, src, dst, label.to_string()));
-        self.edges.insert(edge_id, edge);
-        self.update_label_index(edge_id, label);
-        edge_id
-    }
-    
-    pub fn get_edge(&self, id: EdgeId) -> Option<Shared<Edge>> {
-        self.edges.get(&id).map(|entry| entry.clone())
+    pub fn add_edge(&self, src: NodeId, dst: NodeId, label: &str) {
+        let edge = Arc::new(Edge::new(src, dst, label.to_string()));
+        let cloned_arc = edge.clone();
+
+        self.edges.insert(edge);
+        self.update_label_index(cloned_arc, label);
     }
 
-    pub fn get_edges_by_label(&self, label: &str) -> Vec<Shared<Edge>> {
-        let ids: HashSet<EdgeId> = self.label_edge_index
-            .get(label)
-            .map(|guard| guard.iter().map(|r| *r.key()).collect())
-            // this line makes the guard on the dashset, and extracts its keys 
-            .unwrap_or_default();
-        
-        ids.iter().filter_map(|id| self.get_edge(*id)).collect()
+    pub fn get_edges_by_label(&self, label: &str) -> Vec<Arc<Edge>> {
+        if let Some(set_ref) = self.label_edge_index.get(label) {
+            set_ref.iter().map(|e| e.clone()).collect()
+        } else {
+            Vec::new()
+        }
     }
 
-    fn update_label_index(&self, edge_id: EdgeId, label: &str) {
+    fn update_label_index(&self, edge: Arc<Edge>, label: &str) {
         self.label_edge_index
             .entry(label.to_string())
             .or_insert_with(DashSet::new)
-            .insert(edge_id);
+            .insert(edge);
     }
 
 }

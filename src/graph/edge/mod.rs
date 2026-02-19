@@ -2,17 +2,17 @@ use core::fmt;
 use crate::graph::node::{NodeId};
 
 pub type EdgeId = u64;
+
+#[derive(Hash, Eq, PartialEq)]
 pub struct Edge {
-    #[allow(unused)]
-    pub id: EdgeId,
     pub src: NodeId,
     pub dst: NodeId,
     pub label: String,
 }
 
 impl Edge {
-    pub fn new(id: u64, src: NodeId, dst: NodeId, label: String) -> Self {
-        Self { id, src, dst, label }
+    pub fn new(src: NodeId, dst: NodeId, label: String) -> Self {
+        Self { src, dst, label }
     }
 }
 

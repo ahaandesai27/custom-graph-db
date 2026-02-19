@@ -67,5 +67,5 @@ fn run_queries(graph: &Graph) {
 }
 
 fn main() {
-    run_sequential_then_concurrent(2, 5);
+    run_sequential_then_concurrent(5, 10);
 }
