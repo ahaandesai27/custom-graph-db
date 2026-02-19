@@ -2,6 +2,8 @@
 
 use std::collections::HashSet;
 
+use dashmap::DashSet;
+
 use crate::{
     graph::{
         Graph,
@@ -14,20 +16,18 @@ use crate::{
 };
 
 impl Graph {
-    pub fn add_node(&mut self, label: &str, properties: &PropertyMap) -> NodeId {
-        // &mut self borrows the graph mutably and modifies it in place - thereby keeping ownership
-        // &str is used so the function can accept any string input without forcing ownership or extra allocations
-
+    pub fn add_node(&self, label: &str, properties: &PropertyMap) -> NodeId {
         let id = self.node_idgen.next_id();
         let node = shared(Node::new(id, label.to_string(), properties.clone()));
-
-        self.label_node_index
-            .entry(label.to_string())
-            .or_insert_with(HashSet::new)
-            .insert(id);
-
+    
         self.nodes.insert(id, node);
 
+        let entry = self.label_node_index
+            .entry(label.to_string())
+            .or_insert_with(DashSet::new);
+
+        entry.insert(id);
+        
         id
     }
 
@@ -42,25 +42,25 @@ impl Graph {
     }
 
     pub fn get_nodes_by_label(&self, label: &str) -> Vec<Shared<Node>> {
-        // rust cannot prove two &Nodes are different
-        // hence returning two &mut Nodes may cause an error
-        // only immutable returns for this one
-        self.label_node_index
+        let ids: HashSet<NodeId> = self
+            .label_node_index
             .get(label)
-            .into_iter()
-            .flatten()
-            .filter_map(|id| self.get_node(*id))
-            .collect::<Vec<_>>()
+            .map(|guard| guard.iter().map(|r| *r.key()).collect())
+            .unwrap_or_default();
+
+        ids.iter().filter_map(|id| self.get_node(*id)).collect()
     }
 
-    pub fn get_node_ids_by_label(&self, label: &str) -> Option<&HashSet<NodeId>> {
-        // rust cannot prove two &Nodes are different
-        // hence returning two &mut Nodes may cause an error
-        // only immutable returns for this one
-
-        // need to make concurrent later
-        self.label_node_index
+    pub fn get_node_ids_by_label(&self, label: &str) -> Option<HashSet<NodeId>> {
+        let ids: HashSet<NodeId> = self
+            .label_node_index
             .get(label)
+            .map(|guard| guard.iter().map(|r| *r.key()).collect())
+            .unwrap_or_default();
+
+        Some(ids)
+
+        // must clone data because reference might outlive guard
     }
 
     pub fn get_nodes_satisfying_label_and_property(
@@ -68,28 +68,14 @@ impl Graph {
         label: Option<&str>,
         properties: &PropertyQueryMap,
     ) -> Vec<Shared<Node>> {
-        match label {
-            Some(l) => self
-                .label_node_index
-                .get(l)
-                .into_iter()
-                .flatten()
-                .filter_map(|id| {
-                    self.nodes.get(id).and_then(|entry| {
-                        let node = entry.value();
-                        let guard = node.read().unwrap();
-                        if guard.is_satisfying_property(properties) {
-                            Some(node.clone())
-                        } else {
-                            None
-                        }
-                    })
-                })
-                .collect(),
-            None => self
-                .nodes
-                .iter()
-                .filter_map(|entry| {
+        let ids: HashSet<NodeId> = match label {
+            Some(l) => self.get_node_ids_by_label(l).unwrap(),
+            None => self.nodes.iter().map(|e| *e.key()).collect(),
+        };
+
+        ids.iter()
+            .filter_map(|id| {
+                self.nodes.get(id).and_then(|entry| {
                     let node = entry.value();
                     let guard = node.read().unwrap();
                     if guard.is_satisfying_property(properties) {
@@ -98,7 +84,7 @@ impl Graph {
                         None
                     }
                 })
-                .collect(),
-        }
+            })
+            .collect()
     }
 }

@@ -3,6 +3,7 @@ use crate::graph::node::{NodeId};
 
 pub type EdgeId = u64;
 pub struct Edge {
+    #[allow(unused)]
     pub id: EdgeId,
     pub src: NodeId,
     pub dst: NodeId,

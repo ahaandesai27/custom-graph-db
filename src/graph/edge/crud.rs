@@ -2,10 +2,12 @@
 
 use std::collections::HashSet;
 
+use dashmap::DashSet;
+
 use crate::{graph::{Graph, edge::{Edge, EdgeId}, node::NodeId}, utils::shared::{shared,Shared}};
 
 impl Graph {
-    pub fn add_edge(&mut self, src: NodeId, dst: NodeId, label: &str) -> EdgeId {
+    pub fn add_edge(&self, src: NodeId, dst: NodeId, label: &str) -> EdgeId {
         let edge_id = self.edge_idgen.next_id();
         let edge = shared(Edge::new(edge_id, src, dst, label.to_string()));
         self.edges.insert(edge_id, edge);
@@ -18,18 +20,19 @@ impl Graph {
     }
 
     pub fn get_edges_by_label(&self, label: &str) -> Vec<Shared<Edge>> {
-        self.label_edge_index
+        let ids: HashSet<EdgeId> = self.label_edge_index
             .get(label)
-            .into_iter()
-            .flatten()
-            .filter_map(|id| self.get_edge(*id))
-            .collect::<Vec<_>>()
+            .map(|guard| guard.iter().map(|r| *r.key()).collect())
+            // this line makes the guard on the dashset, and extracts its keys 
+            .unwrap_or_default();
+        
+        ids.iter().filter_map(|id| self.get_edge(*id)).collect()
     }
 
-    fn update_label_index(&mut self, edge_id: EdgeId, label: &str) {
+    fn update_label_index(&self, edge_id: EdgeId, label: &str) {
         self.label_edge_index
             .entry(label.to_string())
-            .or_insert_with(HashSet::new)
+            .or_insert_with(DashSet::new)
             .insert(edge_id);
     }
 

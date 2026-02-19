@@ -31,7 +31,6 @@ fn parse_value(raw: &str, cmp: Cmp) -> PropertyQueryValue {
 
 pub enum PatternElement {
     Node {
-        variable: String,
         label: Option<String>,
     },
     Edge {
@@ -80,12 +79,10 @@ pub fn parse_select(pair: Pair<Rule>) -> SelectQuery {
                 node_labels.insert(left.to_string(), right.to_string());
 
                 pattern.push(PatternElement::Node {
-                    variable: left.to_string(),
                     label: Some(right.to_string()),
                 });
             } else {
                 pattern.push(PatternElement::Node {
-                    variable: s.to_string(),
                     label: None,
                 });
             }
