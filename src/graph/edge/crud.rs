@@ -1,10 +1,6 @@
-// CRUD on graph edges 
-
-use std::{clone, collections::HashSet, sync::Arc};
-
+use std::{sync::Arc};
 use dashmap::DashSet;
-
-use crate::{graph::{Graph, edge::{Edge, EdgeId}, node::NodeId}, utils::shared::{shared,Shared}};
+use crate::{graph::{Graph, edge::{Edge}, node::NodeId}};
 
 impl Graph {
     pub fn add_edge(&self, src: NodeId, dst: NodeId, label: &str) {

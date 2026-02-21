@@ -59,6 +59,7 @@ impl Graph {
         &self,
         pattern:Vec<PatternElement>,
     ) -> Vec<Shared<Node>> {
+        // Executes the pattern chain in the select statement and returns matching nodes.
 
         if pattern.is_empty() {
             return Vec::new();

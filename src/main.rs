@@ -1,15 +1,13 @@
-#![allow(unused)]
 mod engine;
 mod graph;
 mod parser;
 mod utils;
 
-use crate::engine::{process_read_query, process_write_query};
+use crate::engine::read::process_read_query;
+use crate::engine::write::process_write_query;
 use crate::graph::Graph;
-
 use std::sync::{Arc};
 use std::thread;
-
 
 const QUERIES: &[&str] = &[
     r#"CREATE NODE LABEL=A PROPERTIES=(p1:2, p2:"alpha", p3:true)"#,

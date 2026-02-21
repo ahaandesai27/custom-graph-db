@@ -41,16 +41,6 @@ impl Graph {
         // if lock is needed, lock the node on return (in the function that calls) and update
     }
 
-    pub fn get_nodes_by_label(&self, label: &str) -> Vec<Shared<Node>> {
-        let ids: HashSet<NodeId> = self
-            .label_node_index
-            .get(label)
-            .map(|guard| guard.iter().map(|r| *r.key()).collect())
-            .unwrap_or_default();
-
-        ids.iter().filter_map(|id| self.get_node(*id)).collect()
-    }
-
     pub fn get_node_ids_by_label(&self, label: &str) -> Option<HashSet<NodeId>> {
         let ids: HashSet<NodeId> = self
             .label_node_index

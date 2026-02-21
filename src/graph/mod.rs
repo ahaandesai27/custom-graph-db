@@ -2,7 +2,7 @@ use std::sync::Arc;
 
 use dashmap::{DashMap, DashSet};
 
-use crate::{graph::{edge::{Edge, EdgeId}, idgen::IdGenerator, node::{Node, NodeId}}, utils::shared::Shared};
+use crate::{graph::{edge::Edge, idgen::IdGenerator, node::{Node, NodeId}}, utils::shared::Shared};
 
 pub struct Graph {
     pub nodes: DashMap<NodeId, Shared<Node>>,                 // index by id 

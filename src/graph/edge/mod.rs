@@ -1,8 +1,6 @@
 use core::fmt;
 use crate::graph::node::{NodeId};
 
-pub type EdgeId = u64;
-
 #[derive(Hash, Eq, PartialEq)]
 pub struct Edge {
     pub src: NodeId,
@@ -18,7 +16,7 @@ impl Edge {
 
 impl fmt::Display for Edge {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "Node(label={})", self.label)
+        write!(f, "Edge(label={})", self.label)
     }
 }
 
