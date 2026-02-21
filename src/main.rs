@@ -57,9 +57,9 @@ fn run_sequential_then_concurrent(iterations: usize, thread_count: usize) {
 fn run_queries(graph: &Graph) {
     for q in QUERIES {
         if q.starts_with("SELECT") {
-            process_read_query(q, graph).unwrap();
+            process_read_query(q, graph, false).unwrap();
         } else {
-            process_write_query(q, graph).unwrap();
+            process_write_query(q, graph, false).unwrap();
         }
     }
 }

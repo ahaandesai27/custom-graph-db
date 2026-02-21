@@ -13,6 +13,7 @@ fn parse_statement<'a>(input: &'a str) -> Result<pest::iterators::Pair<'a, Rule>
 pub fn process_read_query(
     input: &str,
     graph: &Graph,
+    log: bool,
 ) -> Result<(), pest::error::Error<Rule>> {
 
     let stmt = parse_statement(input)?;
@@ -39,9 +40,11 @@ pub fn process_read_query(
                 })
                 .collect();
             
-            for node in result {
-                let guard = node.read().unwrap();
-                // println!("{}", guard);
+            if log {
+                for node in result {
+                    let guard = node.read().unwrap();
+                    println!("{}", guard);
+                }
             }
         }
 

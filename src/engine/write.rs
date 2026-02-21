@@ -13,6 +13,7 @@ fn parse_statement<'a>(input: &'a str) -> Result<pest::iterators::Pair<'a, Rule>
 pub fn process_write_query(
     input: &str,
     graph: &Graph,
+    log: bool,
 ) -> Result<(), pest::error::Error<Rule>> {
 
     let stmt = parse_statement(input)?;
@@ -22,9 +23,11 @@ pub fn process_write_query(
         Rule::create_stmt => {
             let create_query = parse_create(inner);
             let node_id = graph.add_node(&create_query.label, &create_query.properties);
-            // let node_arc = graph.get_node(node_id).unwrap();
-            // let guard = node_arc.read().unwrap();
-            // println!("Node created: {}", guard);
+            if log {
+                let node_arc = graph.get_node(node_id).unwrap();
+                let guard = node_arc.read().unwrap();
+                println!("Node created: {}", guard);
+            }
         }
 
         Rule::add_edge_stmt => {
@@ -62,11 +65,13 @@ pub fn process_write_query(
                 }
             }
 
-            // println!(
-            //     "Added {} '{}' edges",
-            //     source_ids.len() * dest_ids.len(),
-            //     label
-            // );
+            if log {
+                println!(
+                    "Added {} '{}' edges",
+                    source_ids.len() * dest_ids.len(),
+                    label
+                );
+            }
         }
 
         Rule::select_stmt => {
