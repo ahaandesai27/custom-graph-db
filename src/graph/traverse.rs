@@ -1,10 +1,11 @@
-use std::collections::HashSet;
-
 use crate::{
-    graph::{Graph, node::{Node, NodeId}}, parser::select::parse::PatternElement, utils::shared::Shared,
+    graph::{Graph, node::{Node, NodeId}},
+    parser::select::parse::PatternElement,
+    utils::shared::Shared,
 };
 
 impl Graph {
+
     fn traverse(
         &self,
         start_id: NodeId,
@@ -12,15 +13,17 @@ impl Graph {
         min_hops: usize,
         max_hops: Option<usize>,
         target_label: &str,
-    ) -> Vec<NodeId> {
-        // BFS For edge traversal 
+    ) -> Vec<Vec<NodeId>> {
+
         let mut results = Vec::new();
-        let mut visited: HashSet<NodeId> = HashSet::new();
-        let mut frontier: Vec<(NodeId, usize)> = vec![(start_id, 0)];
+
+        let mut frontier: Vec<(NodeId, usize, Vec<NodeId>)> =
+            vec![(start_id, 0, vec![start_id])];
 
         let max_depth = max_hops.unwrap_or(usize::MAX);
 
-        while let Some((current_id, depth)) = frontier.pop() {
+        while let Some((current_id, depth, path)) = frontier.pop() {
+
             if depth > max_depth {
                 continue;
             }
@@ -29,15 +32,10 @@ impl Graph {
                 if let Some(node) = self.get_node(current_id) {
                     let guard = node.read().unwrap();
                     if guard.label == target_label {
-                        results.push(current_id);
+                        results.push(path.clone());
                     }
                 }
             }
-
-            if visited.contains(&current_id) {
-                continue;
-            }
-            visited.insert(current_id);
 
             if depth == max_depth {
                 continue;
@@ -47,7 +45,11 @@ impl Graph {
 
             for edge in edges {
                 if edge.src == current_id {
-                    frontier.push((edge.dst, depth + 1));
+
+                    let mut new_path = path.clone();
+                    new_path.push(edge.dst);
+
+                    frontier.push((edge.dst, depth + 1, new_path));
                 }
             }
         }
@@ -57,15 +59,13 @@ impl Graph {
 
     pub fn execute_pattern_chain(
         &self,
-        pattern:Vec<PatternElement>,
-    ) -> Vec<Shared<Node>> {
-        // Executes the pattern chain in the select statement and returns matching nodes.
+        pattern: Vec<PatternElement>,
+    ) -> Vec<Vec<Shared<Node>>> {
 
         if pattern.is_empty() {
             return Vec::new();
         }
 
-        // First element must be a Node
         let first_label = match &pattern[0] {
             PatternElement::Node { label, .. } => {
                 label.as_ref().expect("First node must have label")
@@ -73,17 +73,19 @@ impl Graph {
             _ => panic!("Pattern must start with Node"),
         };
 
-        let mut current_nodes: HashSet<NodeId> =
-            self.get_node_ids_by_label(first_label).unwrap().clone();
+        let start_ids = self
+            .get_node_ids_by_label(first_label)
+            .unwrap()
+            .clone();
 
-        let mut all_nodes: HashSet<NodeId> =
-            current_nodes.iter().map(|id| id.clone()).collect();
+        let mut rows: Vec<Vec<NodeId>> =
+            start_ids.into_iter().map(|id| vec![id]).collect();
 
         let mut i = 1;
 
         while i < pattern.len() {
-            // matches edge 
-            let edge_pattern = match &pattern[i] {
+
+            let (edge_type, min_hops, max_hops) = match &pattern[i] {
                 PatternElement::Edge {
                     edge_type,
                     min_hops,
@@ -92,7 +94,6 @@ impl Graph {
                 _ => panic!("Expected Edge at position {}", i),
             };
 
-            // matches target node to it 
             let target_label = match &pattern[i + 1] {
                 PatternElement::Node { label, .. } => {
                     label.as_ref().expect("Node must have label")
@@ -100,33 +101,42 @@ impl Graph {
                 _ => panic!("Expected Node at position {}", i + 1),
             };
 
-            let mut next_nodes: HashSet<NodeId> = HashSet::new(); 
+            let mut new_rows = Vec::new();
 
-            // runs BFS depending on edge query 
-            for start_id in current_nodes {
+            for row in rows {
 
-                let reachable_ids = self.traverse(
-                    start_id,
-                    edge_pattern.0,
-                    *edge_pattern.1,
-                    *edge_pattern.2,
+                let last_id = *row.last().unwrap();
+
+                let paths = self.traverse(
+                    last_id,
+                    edge_type,
+                    *min_hops,
+                    *max_hops,
                     target_label,
                 );
 
-                for id in reachable_ids {
-                    if next_nodes.insert(id) {
-                        all_nodes.insert(id);
+                for path in paths {
+
+                    let mut extended = row.clone();
+
+                    for id in path.into_iter().skip(1) {
+                        extended.push(id);
                     }
+
+                    new_rows.push(extended);
                 }
             }
 
-            current_nodes = next_nodes;
+            rows = new_rows;
             i += 2;
         }
 
-        all_nodes
-            .iter()
-            .filter_map(|id| self.get_node(*id))
+        rows.into_iter()
+            .map(|row| {
+                row.into_iter()
+                    .filter_map(|id| self.get_node(id))
+                    .collect()
+            })
             .collect()
     }
 }

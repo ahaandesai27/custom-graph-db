@@ -17,6 +17,7 @@ const QUERIES: &[&str] = &[
     r#"SELECT a FROM a:A"#,
     r#"SELECT b FROM b:B"#,
     r#"SELECT c FROM c:C"#,
+    r#"SELECT a,b FROM a:A-E->b:B"#
 ];
 
 fn run_sequential_then_concurrent(iterations: usize, thread_count: usize) {
@@ -57,13 +58,14 @@ fn run_sequential_then_concurrent(iterations: usize, thread_count: usize) {
 fn run_queries(graph: &Graph) {
     for q in QUERIES {
         if q.starts_with("SELECT") {
-            process_read_query(q, graph, false).unwrap();
+            process_read_query(q, graph, true).unwrap();
         } else {
-            process_write_query(q, graph, false).unwrap();
+            process_write_query(q, graph, true).unwrap();
         }
     }
 }
 
 fn main() {
-    run_sequential_then_concurrent(5, 10);
+    let graph = Graph::new();
+    run_queries(&graph);
 }
