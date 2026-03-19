@@ -19,15 +19,16 @@ impl Graph {
     pub fn add_node(&self, label: &str, properties: &PropertyMap) -> NodeId {
         let id = self.node_idgen.next_id();
         let node = shared(Node::new(id, label.to_string(), properties.clone()));
-    
+
         self.nodes.insert(id, node);
 
-        let entry = self.label_node_index
+        let entry = self
+            .label_node_index
             .entry(label.to_string())
             .or_insert_with(DashSet::new);
 
         entry.insert(id);
-        
+
         id
     }
 
@@ -76,5 +77,31 @@ impl Graph {
                 })
             })
             .collect()
+    }
+
+    pub fn delete_node(&self, id: NodeId) {
+        if let Some(entry) = self.nodes.remove(&id) {
+            let node = entry.1;
+
+            let label = {
+                // lock dropped early 
+                let guard = node.read().unwrap();
+                guard.label.clone()
+            };
+
+            if let Some(label_set) = self.label_node_index.get(&label) {
+                label_set.remove(&id);
+            }
+
+            self.edges.retain(|edge| edge.src != id && edge.dst != id);
+
+            for entry in self.label_edge_index.iter() {
+                entry
+                    .value()
+                    .retain(|edge| edge.src != id && edge.dst != id);
+            }
+
+            self.label_edge_index.retain(|_, set| !set.is_empty());
+        }
     }
 }

@@ -1,6 +1,7 @@
 use crate::graph::Graph;
 use crate::parser::add_edge::parse::{AddEdgeStmt, parse_add_edge};
 use crate::parser::create::parse::parse_create;
+use crate::parser::delete::parse::parse_delete;
 use crate::parser::query_parser::{QueryParser, Rule};
 use pest::Parser;
 
@@ -16,6 +17,7 @@ pub fn process_write_query(
     log: bool,
 ) -> Result<(), pest::error::Error<Rule>> {
 
+
     let stmt = parse_statement(input)?;
     let inner = stmt.into_inner().next().unwrap();
 
@@ -28,6 +30,12 @@ pub fn process_write_query(
                 let guard = node_arc.read().unwrap();
                 println!("Node created: {}", guard);
             }
+        }
+        
+        Rule::delete_stmt => {
+            let delete_query = parse_delete(inner);
+            let node_id = delete_query.id;
+            graph.delete_node(node_id);
         }
 
         Rule::add_edge_stmt => {

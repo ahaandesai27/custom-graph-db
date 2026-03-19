@@ -8,3 +8,4 @@ WHERE  = { "WHERE" }
 ADD = { "ADD" }
 EDGE = { "EDGE" }
 TO = { "TO" }
+DELETE = { "DELETE" } 

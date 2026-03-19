@@ -1,4 +1,9 @@
-statement = { create_stmt | select_stmt | add_edge_stmt }
+statement = { create_stmt | select_stmt | add_edge_stmt | delete_stmt }
+
+
+delete_stmt = {
+    DELETE ~ NODE ~ WHERE ~ "ID" ~ "=" ~ number
+}
 
 
 CREATE     = { "CREATE" }
@@ -11,6 +16,7 @@ WHERE  = { "WHERE" }
 ADD = { "ADD" }
 EDGE = { "EDGE" }
 TO = { "TO" }
+DELETE = { "DELETE" } 
 
 select_stmt = {
     SELECT ~ variable_clause ~ FROM ~ relation_clause ~ where_clause?
