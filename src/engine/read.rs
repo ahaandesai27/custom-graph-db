@@ -16,8 +16,9 @@ pub fn process_read_query(
     input: &str,
     graph: &Graph,
     log: bool,
-) -> Result<(), pest::error::Error<Rule>> {
+) -> Result<Vec<String>, pest::error::Error<Rule>> {
     let stmt = parse_statement(input)?;
+    let query = stmt.clone();
     let inner = stmt.into_inner().next().unwrap();
 
     match inner.as_rule() {
@@ -43,24 +44,33 @@ pub fn process_read_query(
                 })
                 .collect();
             
+            let mut nodes: Vec<String> = Vec::new();
+
             if log {
                 for (i, row) in result.iter().enumerate() {
-                    println!("Row {}:", i + 1);
+                    nodes.push(format!("Row {}:", i + 1));
 
                     for node in row {
                         let guard = node.read().unwrap();
-                        println!("  {} {:?}", guard.label, guard.property_map);
+                        nodes.push(format!("  {} {:?}", guard.label, guard.property_map));
                     }
 
                     println!();
                 }
             }
-        }
 
+            return Ok(nodes);
+        }
+        
         _ => {
-            println!("Write query rejected in read mode");
+            Err(pest::error::Error::new_from_span(
+                pest::error::ErrorVariant::CustomError {
+                    message: "Expected a SELECT query".to_string(),
+                },
+                query.as_span(),
+            ))?
         }
     }
 
-    Ok(())
+    Ok(Vec::new())
 }

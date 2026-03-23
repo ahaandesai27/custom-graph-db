@@ -15,7 +15,7 @@ pub fn process_write_query(
     input: &str,
     graph: &Graph,
     log: bool,
-) -> Result<(), pest::error::Error<Rule>> {
+) -> Result<String, pest::error::Error<Rule>> {
 
 
     let stmt = parse_statement(input)?;
@@ -30,12 +30,14 @@ pub fn process_write_query(
                 let guard = node_arc.read().unwrap();
                 println!("Node created: {}", guard);
             }
+            return Ok("Node created".into());
         }
-        
+
         Rule::delete_stmt => {
             let delete_query = parse_delete(inner);
             let node_id = delete_query.id;
             graph.delete_node(node_id);
+            return Ok("Node deleted".into());
         }
 
         Rule::add_edge_stmt => {
@@ -80,16 +82,13 @@ pub fn process_write_query(
                     label
                 );
             }
-        }
-
-        Rule::select_stmt => {
-            println!("Read query rejected in write mode");
+            return Ok("Edge added".into());
         }
 
         _ => unreachable!(),
     }
 
-    Ok(())
+    Ok("Query processed".into())
 }
 
 
