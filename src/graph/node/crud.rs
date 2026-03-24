@@ -10,7 +10,7 @@ use crate::{
             Node, NodeId,
             properties::{property_map::PropertyMap, property_query_map::PropertyQueryMap},
         }
-    }, persistence::store::Store, utils::shared::{Shared, shared}
+    }, persistence::Store, utils::shared::{Shared, shared}
 };
 
 impl Graph {

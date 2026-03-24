@@ -9,7 +9,7 @@ use std::sync::Arc;
 use dashmap::{DashMap, DashSet};
 
 use crate::graph::node::properties::property_map::PropertyMap;
-use crate::persistence::store::Store;
+use crate::persistence::Store;
 use crate::utils::shared::shared;
 use crate::{
     graph::{
