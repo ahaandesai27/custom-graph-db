@@ -2,17 +2,15 @@
 
 use std::collections::HashSet;
 
-use dashmap::DashSet;
+use dashmap::{DashMap, DashSet};
 
 use crate::{
     graph::{
-        Graph,
-        node::{
+        Graph, idgen::IdGenerator, node::{
             Node, NodeId,
             properties::{property_map::PropertyMap, property_query_map::PropertyQueryMap},
-        },
-    },
-    utils::shared::{Shared, shared},
+        }
+    }, persistence::store::Store, utils::shared::{Shared, shared}
 };
 
 impl Graph {
@@ -28,6 +26,8 @@ impl Graph {
             .or_insert_with(DashSet::new);
 
         entry.insert(id);
+
+        self.store.write_node(id, label, properties);
 
         id
     }

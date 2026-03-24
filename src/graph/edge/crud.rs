@@ -9,6 +9,8 @@ impl Graph {
 
         self.edges.insert(edge);
         self.update_label_index(cloned_arc, label);
+
+        self.store.write_edge(src, dst, label);
     }
 
     pub fn get_edges_by_label(&self, label: &str) -> Vec<Arc<Edge>> {

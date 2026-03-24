@@ -10,12 +10,14 @@ use std::thread;
 use tokio::net::TcpListener;
 use tokio::io::{AsyncReadExt, AsyncWriteExt};
 
+
+
+pub mod persistence;
+
 mod engine;
 mod graph;
 mod parser;
 mod utils;
-
-
 #[tokio::main]
 async fn main() {
     let listener = TcpListener::bind("0.0.0.0:8000").await.unwrap();
